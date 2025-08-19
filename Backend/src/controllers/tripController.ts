@@ -1,0 +1,201 @@
+import { Request, Response } from 'express';
+import { prisma } from '../prisma.js';
+import { toBoolean } from '../utils/formatter.js';
+
+export const getRecords = async (req: Request, res: Response) => {
+  try {
+    const data = await prisma.trip.findMany({
+      select: {
+        id: true,
+        departureDate: true,
+        cityDeparture: true,
+        addressDeparture: true,
+        cityDestination: true,
+        addressDestination: true,
+        pricePerSeat: true,
+        seatsTotal: true,
+        user: {
+          select: {
+            id: true,
+            firstname: true,
+            lastname: true,
+            image: true,
+            reviewsRecieved: {
+              select: {
+                numStars: true
+              }
+            }
+          }
+        }
+      }
+    });
+
+    const result = data.map(trip => {
+      const totalStars = trip.user.reviewsRecieved.reduce((sum, review) => sum + review.numStars, 0)
+      console.log(totalStars);
+    })
+
+    res.json(data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to fetch trips' });
+  }
+};
+
+export const getRecord = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  try {
+    const data = await prisma.trip.findUnique({
+      where: { id: Number(id) },
+      include: {
+        user: {
+          select: {
+            firstname: true,
+            lastname: true,
+            image: true,
+            description: true
+          }
+        },
+        bagsize: {
+          select: {
+            name: true,
+            description: true
+          }
+        }
+      }
+    });
+
+    if (!data) res.status(404).json({ error: 'Trip not found' });
+
+    const reviews = await prisma.review.aggregate({
+      where: {
+        reviewedUserId: Number(data?.userId)
+      },
+      _count: {
+        _all: true
+      },
+      _sum: {
+        numStars: true
+      }
+    })
+
+    const reviewStats = {
+      totalReviews: reviews._count._all,
+      totalStars: reviews?._sum.numStars ?? 0
+    }
+
+    const response = {
+      ...data,
+      user: {
+        ...(data ? data.user : {}),
+        ...reviewStats
+      }
+    }
+
+    res.json(response);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to fetch trip' });
+  }
+};
+
+export const createRecord = async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+
+  const { departureDate, addressDeparture, cityDeparture, addressDestination, cityDestination, routeDeviation,
+    seatsTotal, pricePerSeat, bagSizeId, comment, allowChildren, allowSmoking, allowMusic, allowPets,
+    hasComfort, useFerry, isElectric } = req.body;
+
+  if (!departureDate || !addressDeparture || !cityDeparture || !addressDestination || !cityDestination ||
+    !routeDeviation || !seatsTotal || !pricePerSeat || !bagSizeId || !comment
+  ) {
+    res.status(400).json({ error: 'All fields are required' });
+  }
+
+  try {
+    const trip = await prisma.trip.create({
+      data: {
+        userId: Number(userId),
+        departureDate: new Date(departureDate),
+        addressDeparture,
+        cityDeparture,
+        addressDestination,
+        cityDestination,
+        routeDeviation: Number(routeDeviation),
+        seatsTotal: Number(seatsTotal),
+        pricePerSeat,
+        bagSizeId: Number(bagSizeId),
+        comment,
+        allowChildren: toBoolean(allowChildren) ?? false,
+        allowSmoking: toBoolean(allowSmoking) ?? false,
+        allowMusic: toBoolean(allowMusic) ?? false,
+        allowPets: toBoolean(allowPets) ?? false,
+        hasComfort: toBoolean(hasComfort) ?? false,
+        useFerry: toBoolean(useFerry) ?? false,
+        isElectric: toBoolean(isElectric) ?? false
+      },
+    });
+    res.status(201).json(trip);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to create trip' });
+  }
+};
+
+export const updateRecord = async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  const { departureDate, addressDeparture, cityDeparture, addressDestination, cityDestination, routeDeviation,
+    seatsTotal, pricePerSeat, bagSizeId, comment, allowChildren, allowSmoking, allowMusic, allowPets,
+    hasComfort, useFerry, isElectric } = req.body;
+
+  if (!departureDate || !addressDeparture || !cityDeparture || !addressDestination || !cityDestination ||
+    !routeDeviation || !seatsTotal || !pricePerSeat || !bagSizeId || !comment
+  ) {
+    res.status(400).json({ error: 'All fields are required' });
+  }
+
+  const dataToUpdate: any = {
+    departureDate: new Date(departureDate),
+    addressDeparture,
+    cityDeparture,
+    addressDestination,
+    cityDestination,
+    routeDeviation: Number(routeDeviation),
+    seatsTotal: Number(seatsTotal),
+    pricePerSeat,
+    bagSizeId: Number(bagSizeId),
+    comment,
+    allowChildren: toBoolean(allowChildren) ?? false,
+    allowSmoking: toBoolean(allowSmoking) ?? false,
+    allowMusic: toBoolean(allowMusic) ?? false,
+    allowPets: toBoolean(allowPets) ?? false,
+    hasComfort: toBoolean(hasComfort) ?? false,
+    useFerry: toBoolean(useFerry) ?? false,
+    isElectric: toBoolean(isElectric) ?? false
+  };
+
+  try {
+    const data = await prisma.trip.update({
+      where: { id: Number(id) },
+      data: dataToUpdate,
+    });
+    res.status(200).json(data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to update trip' });
+  }
+};
+
+export const deleteRecord = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  try {
+    await prisma.trip.delete({
+      where: { id: Number(id) },
+    });
+    res.status(200).json({ message: 'Trip deleted' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to delete trip' });
+  }
+};
