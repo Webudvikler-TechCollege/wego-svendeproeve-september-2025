@@ -7,6 +7,7 @@ import { authRoutes } from './routes/authRoutes';
 import { tripRoutes } from './routes/tripRoutes';
 import { bookingRoutes } from './routes/bookingRoutes';
 import { reviewRoutes } from './routes/reviewRoutes';
+import { bagSizeRoutes } from './routes/bagSizeRoutes';
 
 dotenv.config();
 const port = process.env.SERVERPORT || 3000
@@ -24,6 +25,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/trips', tripRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/reviews', reviewRoutes);
+app.use('/api/bagsizes', bagSizeRoutes);
 
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);

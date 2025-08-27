@@ -1,7 +1,6 @@
-# Prisma API Template
+# API til svendeprøve
 
-Et starterprojekt med **Node.js**, **TypeScript**, **Express 5**, og **Prisma ORM**. Perfekt som udgangspunkt for REST API'er med moderne værktøjer og datamodellering.
-
+Dette REST API er bygget i **Node.js**, **TypeScript**, **Express 5**, og **Prisma**.
 ---
 
 ## 🛠 Teknologier
