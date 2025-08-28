@@ -19,7 +19,7 @@ export const getRecords = async (req: Request, res: Response) => {
             id: true,
             firstname: true,
             lastname: true,
-            image: true,
+            imageUrl: true,
             reviewsRecieved: {
               select: {
                 numStars: true
@@ -32,7 +32,6 @@ export const getRecords = async (req: Request, res: Response) => {
 
     const result = data.map(trip => {
       const totalStars = trip.user.reviewsRecieved.reduce((sum, review) => sum + review.numStars, 0)
-      console.log(totalStars);
     })
 
     res.json(data);
@@ -52,7 +51,7 @@ export const getRecord = async (req: Request, res: Response) => {
           select: {
             firstname: true,
             lastname: true,
-            image: true,
+            imageUrl: true,
             description: true
           }
         },
