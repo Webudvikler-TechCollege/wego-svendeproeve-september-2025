@@ -1,4 +1,4 @@
-"id","name","description"
-1,Lille,Lille skuldertaske eller rygsæk
-2,Mellem,Mellemstor trolley eller weekendtaske
-3,Stor,Stor rejsetaske eller kuffert
+"id","name","description","iconUrl"
+1,Lille,Lille skuldertaske eller rygsæk,"/images/icons/bag-sm.svg"
+2,Mellem,Mellemstor trolley eller weekendtaske,"/images/icons/bag-md.svg"
+3,Stor,Stor rejsetaske eller kuffert,"/images/icons/bag-lg.svg"

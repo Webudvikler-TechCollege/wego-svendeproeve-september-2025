@@ -49,7 +49,8 @@ export const fieldTypes: Record<string, Record<string, 'string' | 'number' | 'bo
   bagsize: {
     id: 'number',
     name: 'string',
-    description: 'string'
+    description: 'string',
+    iconUrl: 'string'
   },
   slide: {
     id: 'number',
