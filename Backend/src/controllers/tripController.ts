@@ -13,6 +13,8 @@ export const getRecords = async (req: Request, res: Response) => {
         cityDestination: true,
         addressDestination: true,
         pricePerSeat: true,
+        useFerry: true,
+        isElectric: true,
         seatsTotal: true,
         user: {
           select: {
@@ -26,15 +28,37 @@ export const getRecords = async (req: Request, res: Response) => {
               }
             }
           }
-        }
+        },
+        bookings: { 
+          select: { 
+            numSeats: true 
+          } 
+        },
+      },
+      orderBy: {
+        departureDate: 'asc'
       }
     });
 
+    const result = data.map(({ bookings, user, ...t }) => {
+      
+      const seatsBooked = bookings.reduce((sum,b) => sum + b.numSeats, 0)
+
+      const numReviews = user.reviewsRecieved.length
+      const numStars = user.reviewsRecieved.reduce((sum, b) => b.numStars, 0)
+      const avgStars =  numStars / user.reviewsRecieved.length || 0
+      const { reviewsRecieved, ...userRest } = user      
+
+      return { ...t, seatsBooked, user: { ...userRest, numReviews, numStars, avgStars }}
+    })
+
+    /*
     const result = data.map(trip => {
       const totalStars = trip.user.reviewsRecieved.reduce((sum, review) => sum + review.numStars, 0)
     })
+      */
 
-    res.json(data);
+    res.json(result);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Failed to fetch trips' });
