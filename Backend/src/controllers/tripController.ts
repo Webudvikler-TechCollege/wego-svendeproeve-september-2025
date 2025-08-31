@@ -40,23 +40,15 @@ export const getRecords = async (req: Request, res: Response) => {
       }
     });
 
-    const result = data.map(({ bookings, user, ...t }) => {
-      
+    // Beregner antal ledige pladser + tildelte stjerner
+    const result = data.map(({ bookings, user, ...t }) => {      
       const seatsBooked = bookings.reduce((sum,b) => sum + b.numSeats, 0)
-
       const numReviews = user.reviewsRecieved.length
       const numStars = user.reviewsRecieved.reduce((sum, b) => b.numStars, 0)
       const avgStars =  numStars / user.reviewsRecieved.length || 0
       const { reviewsRecieved, ...userRest } = user      
-
       return { ...t, seatsBooked, user: { ...userRest, numReviews, numStars, avgStars }}
     })
-
-    /*
-    const result = data.map(trip => {
-      const totalStars = trip.user.reviewsRecieved.reduce((sum, review) => sum + review.numStars, 0)
-    })
-      */
 
     res.json(result);
   } catch (error) {
@@ -84,6 +76,11 @@ export const getRecord = async (req: Request, res: Response) => {
             name: true,
             description: true
           }
+        },
+        bookings: {
+          select: {
+            numSeats: true
+          }
         }
       }
     });
@@ -102,13 +99,21 @@ export const getRecord = async (req: Request, res: Response) => {
       }
     })
 
+    const numReviews = reviews._count._all
+    const numStars = reviews?._sum.numStars ?? 0
+    const avgStars = numStars / numReviews || 0
+
     const reviewStats = {
-      totalReviews: reviews._count._all,
-      totalStars: reviews?._sum.numStars ?? 0
+      numReviews: reviews._count._all,
+      numStars: reviews?._sum.numStars ?? 0,
+      avgStars: avgStars
     }
+
+    const seatsBooked = data?.bookings.reduce((sum, { numSeats = 0}) => sum + numSeats, 0)
 
     const response = {
       ...data,
+      seatsBooked,
       user: {
         ...(data ? data.user : {}),
         ...reviewStats
