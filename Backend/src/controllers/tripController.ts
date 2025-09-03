@@ -16,6 +16,11 @@ export const getRecords = async (req: Request, res: Response) => {
         bagSizeId: true,
         useFerry: true,
         isElectric: true,
+        hasComfort: true,
+        allowChildren: true,
+        allowSmoking: true,
+        allowMusic: true,
+        allowPets: true,
         seatsTotal: true,
         user: {
           select: {
