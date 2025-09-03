@@ -13,6 +13,7 @@ export const getRecords = async (req: Request, res: Response) => {
         cityDestination: true,
         addressDestination: true,
         pricePerSeat: true,
+        bagSizeId: true,
         useFerry: true,
         isElectric: true,
         seatsTotal: true,
