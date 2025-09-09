@@ -49,11 +49,24 @@ export const getRecords = async (req: Request, res: Response) => {
     // Beregner antal ledige pladser + tildelte stjerner
     const result = data.map(({ bookings, user, ...t }) => {      
       const seatsBooked = bookings.reduce((sum,b) => sum + b.numSeats, 0)
-      const numReviews = user.reviewsRecieved.length
-      const numStars = user.reviewsRecieved.reduce((sum, b) => b.numStars, 0)
-      const avgStars =  numStars / user.reviewsRecieved.length || 0
-      const { reviewsRecieved, ...userRest } = user      
-      return { ...t, seatsBooked, user: { ...userRest, numReviews, numStars, avgStars }}
+
+      const reviews = user.reviewsRecieved ?? [];
+
+      const { numStars, numReviews } = (reviews ?? []).reduce(
+        (acc: { numStars: number; numReviews: number }, r) => {
+          const n = Number((r as any)?.numStars)
+          const val = Number.isFinite(n) ? Math.max(0, Math.min(5,n)) : 0
+          acc.numStars += val
+          acc.numReviews += 1
+          return acc
+        }, { numStars: 0, numReviews: 0 }
+      );
+
+      const avgStars = numReviews > 0 ? numStars / numReviews : 0;
+
+      const { reviewsRecieved, ...userRest } = user;
+      return { ...t, seatsBooked, user: { ...userRest, numReviews, numStars, avgStars } };
+
     })
 
     res.json(result);
@@ -80,7 +93,8 @@ export const getRecord = async (req: Request, res: Response) => {
         bagsize: {
           select: {
             name: true,
-            description: true
+            description: true,
+            iconUrl: true
           }
         },
         bookings: {
