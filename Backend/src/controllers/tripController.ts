@@ -99,7 +99,15 @@ export const getRecord = async (req: Request, res: Response) => {
         },
         bookings: {
           select: {
-            numSeats: true
+            id: true,
+            numSeats: true,
+            user: {
+              select: {
+                id: true,
+                firstname: true,
+                imageUrl: true
+              }
+            }
           }
         }
       }
