@@ -81,6 +81,7 @@ model Review {
   comment        String @db.Text
   reviewerId     Int
   reviewedUserId Int
+  createdAt DateTime @default(now())
 
   reviewer        User @relation("reviewsWritten", fields: [reviewerId], references: [id])
   reviewsRecieved User @relation("reviewsRecieved", fields: [reviewedUserId], references: [id])
@@ -105,4 +106,12 @@ model Slide {
   text     String
 
   @@map("slides")
+}
+
+model Content {
+  id      Int @id @default(autoincrement())
+  title   String
+  content String @db.Text
+
+  @@map("content")
 }

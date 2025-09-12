@@ -56,5 +56,10 @@ export const fieldTypes: Record<string, Record<string, 'string' | 'number' | 'bo
     id: 'number',
     image: 'string',
     text: 'string'
-  }
+  },
+  content: {
+    id: 'number',
+    title: 'string',
+    content: 'string'
+  }  
 };
