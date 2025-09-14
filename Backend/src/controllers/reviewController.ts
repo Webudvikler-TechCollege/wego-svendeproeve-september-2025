@@ -2,8 +2,14 @@ import { Request, Response } from 'express';
 import { prisma } from '../prisma.js';
 
 export const getRecords = async (req: Request, res: Response) => {
+  const reviewerId = req.user?.id;
+
   try {
-    const data = await prisma.review.findMany();
+    const data = await prisma.review.findMany({
+      where: {
+        reviewerId: Number(reviewerId),
+      }
+    });
 
     res.json(data);
   } catch (error) {
@@ -27,14 +33,14 @@ export const getRecord = async (req: Request, res: Response) => {
 };
 
 export const getRecordsByUserId = async (req: Request, res: Response) => {
-  const userId = req.user?.id
+  const { userId } = req.params
   try {
     const data = await prisma.review.findMany({
       where: {
-        reviewerId: userId,
+        reviewedUserId: Number(userId),
       },
       select: {
-        reviewedUserId: true,
+        reviewerId: true,
         numStars: true,
         comment: true,
       },
