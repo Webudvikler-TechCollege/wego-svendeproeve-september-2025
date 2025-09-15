@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+@theme {
+    --color-background: #000000;
+    --color-text: #FFFFFF;
+}
+
+@layer base {
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    body {
+        background-color: var(--color-background);
+        color: var(--color-text);
+    }
+}
