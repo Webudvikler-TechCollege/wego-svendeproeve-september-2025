@@ -1,8 +1,10 @@
 import { useForm } from "react-hook-form";
 import { useAuth } from "../providers/auth.provider";
+import { fetchApi } from "../../utils/fetch/fetch";
+import { toast } from "react-toastify";
 
 export default function FormComponent({ isSignUp = true, onLoginSuccess }) {
-    const { register, handleSubmit, watch, formState: { errors }, reset, trigger, setError, clearErrors } = useForm({
+    const { register, handleSubmit, formState: { errors }, setError, clearErrors } = useForm({
         mode: "onBlur",
         reValidateMode: "onBlur"
     });
@@ -12,34 +14,39 @@ export default function FormComponent({ isSignUp = true, onLoginSuccess }) {
         // Clear any previous confirmPassword errors
         clearErrors("confirmPassword");
 
-        if(!isSignUp) {
-            const url = "http://localhost:4000/api/auth/login"
-        try {
-            const result = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    Accept: "application/json",
-                    "Content-type": "application/json"
-                },
-                body: JSON.stringify({
-                    username: data.username,
-                    password: data.password
-                })
-            })
+        if (!isSignUp) {
+            fetchApi("/api/auth/login", "POST", {
+                username: data.email,
+                password: data.password
+            }).then(response => {
+                if (response.success) {
+                    setLoginData(response.data);
+                    if (onLoginSuccess) onLoginSuccess();
+                    // Close modal after successful login
+                    const modal = document.getElementById("loginModal");
+                    if (modal) {
+                        modal.classList.add("hidden");
+                        modal.classList.remove("flex");
+                    }
+                    const notify = () => toast.success("Login successful");
+                    notify();
+                } else {
+                    setError("email", {
+                        type: "manual",
+                        message: response.error || "Login fejlede"
+                    });
+                }
+            }).catch(error => {
+                setError("email", {
+                    type: "manual",
+                    message: error.message || "Login fejlede"
+                });
+            });
 
-            if (result.ok) {
-                const token = await result.json()
-                sessionStorage.setItem('access_token', JSON.stringify(token))
-                setLoginData(token)
-            } else {
-                throw new Error('Login fejlede')
-            }
-            //console.log(result)
-        } catch (error) {
-            console.error(error);
+            return; // Early return to prevent signup logic from running
         }
-        }
-        
+
+
         // Manual validation for confirmPassword only on submit
         if (isSignUp && data.password !== data.confirmPassword) {
             setError("confirmPassword", {
@@ -52,8 +59,8 @@ export default function FormComponent({ isSignUp = true, onLoginSuccess }) {
     }
 
     return (
-        <form onSubmit={handleSubmit((data) => onSubmit(data))}>
-            {errors.email && <p>{errors.email.message}</p>}
+        <form onSubmit={handleSubmit((data) => onSubmit(data))} className="login-form">
+            {errors.email && <p className="form-error">{errors.email.message}</p>}
             <input
                 {...register("email", {
                     required: "Email is required",
@@ -62,37 +69,41 @@ export default function FormComponent({ isSignUp = true, onLoginSuccess }) {
                         message: "Invalid email address",
                     },
                 })}
-                placeholder="Email"
+                placeholder="Mail"
+                className="login-input"
             />
 
             {isSignUp && (
                 <>
-                    {errors.firstName && <p>{errors.firstName.message}</p>}
+                    {errors.firstName && <p className="form-error">{errors.firstName.message}</p>}
                     <input
                         {...register("firstName", { required: "First Name is required", maxLength: 20 })}
                         placeholder="First Name"
+                        className="login-input"
                     />
-                    {errors.lastName && <p>{errors.lastName.message}</p>}
+                    {errors.lastName && <p className="form-error">{errors.lastName.message}</p>}
                     <input
                         {...register("lastName", { required: "Last Name is required", maxLength: 40 })}
                         placeholder="Last Name"
+                        className="login-input"
                     />
                 </>
             )}
 
-            {errors.password && <p>{errors.password.message}</p>}
+            {errors.password && <p className="form-error">{errors.password.message}</p>}
             <input
                 type="password"
                 {...register("password", {
                     required: "Password is required",
                     minLength: { value: 8, message: "Password must be at least 8 characters" },
                 })}
-                placeholder="Password"
+                placeholder="••••••••••"
+                className="login-input"
             />
 
             {isSignUp && (
                 <>
-                    {errors.confirmPassword && <p>{errors.confirmPassword.message}</p>}
+                    {errors.confirmPassword && <p className="form-error">{errors.confirmPassword.message}</p>}
                     <input
                         type="password"
                         {...register("confirmPassword", {
@@ -100,12 +111,14 @@ export default function FormComponent({ isSignUp = true, onLoginSuccess }) {
                             // Remove validate to prevent onBlur validation
                         })}
                         placeholder="Confirm Password"
+                        className="login-input"
                     />
                 </>
             )}
 
-            <input type="submit" value={isSignUp ? "Sign up" : "Log in"} />
+            <button type="submit" className="login-submit">
+                {isSignUp ? "Sign up" : "Log ind"}
+            </button>
         </form>
     );
 }
- 

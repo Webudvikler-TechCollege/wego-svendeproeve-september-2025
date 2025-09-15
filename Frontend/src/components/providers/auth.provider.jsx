@@ -1,30 +1,67 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
+import { toast } from "react-toastify";
 
-// Opretter en Context, der kan deles på tværs af komponenter
-export const AuthContext = createContext();
+const AuthContext = createContext();
 
-// Provider-komponent, der wrapper app'en og giver auth-data videre
+export const useAuth = () => {
+    const context = useContext(AuthContext);
+    if (!context) {
+        throw new Error('useAuth must be used within an AuthProvider');
+    }
+    return context;
+};
+
+
+
 export const AuthProvider = ({ children }) => {
-    const [loginData, setLoginData] = useState(null);
+    const [loginData, setLoginDataState] = useState(null);
+    const [loading, setLoading] = useState(true); // Add loading state
 
-    useEffect(() => {
-        try {
-            const raw = sessionStorage.getItem("access_token");
-            if (raw) { 
-                setLoginData(JSON.parse(raw));
-                
-            }
-        } catch (error) {
-            console.error("Kunne ikke parse access_token fra sessionStorage", error);
-            setLoginData(null);
+    // Custom setLoginData that also stores in sessionStorage
+    const setLoginData = (data) => {
+        setLoginDataState(data);
+        if (data) {
+            // Store token in sessionStorage when logging in
+            sessionStorage.setItem('access_token', JSON.stringify(data));
+        } else {
+            // Remove from sessionStorage when logging out
+            sessionStorage.removeItem('access_token');
         }
-    }, [children]);
+    };
+
+    // Check for existing token on app initialization
+    useEffect(() => {
+        const storedToken = sessionStorage.getItem('access_token');
+        if (storedToken) {
+            try {
+                const parsedToken = JSON.parse(storedToken);
+                setLoginDataState(parsedToken); // Use internal state setter to avoid re-storing
+            } catch (error) {
+                console.error('Error parsing stored token:', error);
+                sessionStorage.removeItem('access_token');
+            }
+        }
+        setLoading(false);
+    }, []);
+
+    // Custom logout function that clears both state and storage
+    const logout = () => {
+        setLoginData(null); // This will handle both state and storage
+        const notify = () => toast.info("Logged out successfully");
+        notify();
+    };
+
+    const value = {
+        loginData,
+        setLoginData,
+        logout,
+        loading,
+        isLoggedIn: !!loginData
+    };
 
     return (
-        <AuthContext.Provider value={{ loginData, setLoginData }}>
+        <AuthContext.Provider value={value}>
             {children}
         </AuthContext.Provider>
     );
 };
-
-export const useAuth = () => useContext(AuthContext);
