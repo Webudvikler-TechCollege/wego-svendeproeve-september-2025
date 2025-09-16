@@ -43,8 +43,13 @@ export const getRecordsByUserId = async (req: Request, res: Response) => {
         reviewerId: true,
         numStars: true,
         comment: true,
+        reviewer: {               // <-- relation-objektet til User
+          select: { 
+            firstname: true,
+            lastname: true
+          }
+        }
       },
-
     });
 
     res.json(data);
