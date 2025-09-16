@@ -3,9 +3,9 @@ import { useAuth } from "../providers/auth.provider";
 import { fetchApi } from "../../utils/fetch/fetch";
 import { toast } from "react-toastify";
 
-export default function FormComponent({ isSignUp = true, onLoginSuccess }) {
+export default function FormComponent({ isSignUp = true, onLoginSuccess, formClassNames, inputClassNames, buttonClassNames }) {
     const { register, handleSubmit, formState: { errors }, setError, clearErrors } = useForm({
-        mode: "onBlur",
+        mode: "onSubmit",
         reValidateMode: "onBlur"
     });
     const { loginData, setLoginData } = useAuth();
@@ -59,19 +59,21 @@ export default function FormComponent({ isSignUp = true, onLoginSuccess }) {
     }
 
     return (
-        <form onSubmit={handleSubmit((data) => onSubmit(data))} className="login-form">
-            {errors.email && <p className="form-error">{errors.email.message}</p>}
-            <input
-                {...register("email", {
-                    required: "Email is required",
-                    pattern: {
-                        value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                        message: "Invalid email address",
-                    },
-                })}
-                placeholder="Mail"
-                className="login-input"
-            />
+        <form onSubmit={handleSubmit((data) => onSubmit(data))} className={formClassNames}>
+            <div>
+                <p className={`text-red-500 h-2 px-2 text-xs ${errors?.email ? "opacity-100" : "opacity-0"}`}>{errors?.email?.message}</p>
+                <input
+                    {...register("email", {
+                        required: "Email is required",
+                        pattern: {
+                            value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                            message: "Invalid email address",
+                        },
+                    })}
+                    placeholder="Mail"
+                    className={`${inputClassNames}  border-1 ${errors.email ? "border-red-500" : ""}`}
+                />
+            </div>
 
             {isSignUp && (
                 <>
@@ -90,16 +92,18 @@ export default function FormComponent({ isSignUp = true, onLoginSuccess }) {
                 </>
             )}
 
-            {errors.password && <p className="form-error">{errors.password.message}</p>}
-            <input
-                type="password"
-                {...register("password", {
-                    required: "Password is required",
-                    minLength: { value: 8, message: "Password must be at least 8 characters" },
-                })}
-                placeholder="••••••••••"
-                className="login-input"
-            />
+            <div>
+                <p className={`text-red-500 h-2 px-2 text-xs ${errors?.password ? "opacity-100" : "opacity-0"}`}>{errors?.password?.message}</p>
+                <input
+                    type="password"
+                    {...register("password", {
+                        required: "Password is required",
+                        minLength: { value: 8, message: "Password must be at least 8 characters" },
+                    })}
+                    placeholder="••••••••••"
+                    className={`${inputClassNames}  border-1 ${errors.password ? "border-red-500" : ""}`}
+                />
+            </div>
 
             {isSignUp && (
                 <>
@@ -116,7 +120,7 @@ export default function FormComponent({ isSignUp = true, onLoginSuccess }) {
                 </>
             )}
 
-            <button type="submit" className="login-submit">
+            <button type="submit" className={buttonClassNames}>
                 {isSignUp ? "Sign up" : "Log ind"}
             </button>
         </form>
