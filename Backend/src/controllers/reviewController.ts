@@ -46,7 +46,8 @@ export const getRecordsByUserId = async (req: Request, res: Response) => {
         reviewer: {               // <-- relation-objektet til User
           select: { 
             firstname: true,
-            lastname: true
+            lastname: true,
+            imageUrl: true
           }
         }
       },
