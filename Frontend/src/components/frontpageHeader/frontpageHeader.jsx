@@ -46,7 +46,7 @@ export const FrontpageHeader = ({ slides }) => {
 
     return (
         <header 
-            className="frontpage-header relative h-[calc(100vh-96px)] bg-cover bg-center bg-no-repeat transition-all duration-1000 ease-in-out overflow-hidden"
+            className="frontpage-header relative h-[calc(100vh-150px)] bg-cover bg-center bg-no-repeat transition-all duration-1000 ease-in-out overflow-hidden"
             style={{
                 backgroundImage: (imageLoaded && imageUrl && !imageError) 
                     ? `url(${imageUrl})` 

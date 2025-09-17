@@ -16,16 +16,16 @@ export const Navbar = () => {
 
 
   return (
-    <nav className="bg-white shadow-lg absolute w-full z-50 h-24">
+    <nav className="bg-white absolute w-full z-50 h-24">
       <div className=" mx-auto px-16 py-4 ">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-end gap-8">
             <NavLink to="/" className="text-xl font-bold">
-              <img src={wegoLogo} alt="Logo" className="h-16" />
+              <img src={wegoLogo} alt="Logo" className="h-16 hover:scale-110 transition-transform duration-300" />
             </NavLink>
             {/* Desktop Menu */}
             <div className="hidden gap-8 md:flex text-black py-2">
-              <NavLink to="/about" className="hover:bg-off-white p-2 rounded-2xl transition">Find et lift</NavLink>
+              <NavLink to="/lifter" className="hover:bg-off-white p-2 rounded-2xl transition">Find et lift</NavLink>
               <NavLink to="/contact" className="hover:bg-off-white p-2 rounded-2xl transition">Sådan virker det</NavLink>
               {loginData && <NavLink to="/profile" className="hover:bg-off-white p-2 rounded-2xl transition">Min side</NavLink>}
             </div>
@@ -64,7 +64,7 @@ export const Navbar = () => {
               <img src={homeIcon} alt="Home" className="inline-block mr-4" />
               Forside
               </NavLink>
-            <NavLink onClick={() => setIsOpen(false)} to="/contact" 
+            <NavLink onClick={() => setIsOpen(false)} to="/lifter" 
             className="hover:bg-off-white p-2 rounded-2xl transition text-black text-xl font-light">
               <img src={searchIcon} alt="Search" className="inline-block mr-4" />
               Find et lift

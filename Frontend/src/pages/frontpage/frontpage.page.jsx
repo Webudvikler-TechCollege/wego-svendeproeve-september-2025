@@ -2,7 +2,6 @@ import { FrontpageHeader } from "../../components/frontpageHeader/frontpageHeade
 import { fetchApi } from "../../utils/fetch/fetch"
 import { useState, useEffect } from "react"
 import spinner from '../../assets/spinner.svg'
-import { useImageFetch } from "../../utils/fetch/imageFetch"
 
 export const FrontPage = () => {
     const [slides, setSlides] = useState([]);
@@ -97,7 +96,7 @@ export const FrontPage = () => {
     if (error) return <div>Error: {error}</div>;
 
     return (
-        <div>
+        <div className="max-h-screen">
             <FrontpageHeader slides={slidesWithImages} />
         </div>
     )
