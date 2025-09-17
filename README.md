@@ -1,5 +1,5 @@
 # WeGo 
-## Svendeprøve-prøve August 2025
+## Svendeprøve September 2025
 Front- og backend til svendeprøve WeGo, September 2025
 
 # Backend
